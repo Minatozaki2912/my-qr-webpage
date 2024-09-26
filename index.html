@@ -13,35 +13,57 @@
 
             // Kiểm tra hỗ trợ Geolocation
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(position) {
-                    const latitude = position.coords.latitude;
-                    const longitude = position.coords.longitude;
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        const latitude = position.coords.latitude;
+                        const longitude = position.coords.longitude;
 
-                    // Gửi vị trí và uniqueId đến máy chủ
-                    fetch('/api/location', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            uniqueId: uniqueId,
-                            latitude: latitude,
-                            longitude: longitude
+                        // Gửi vị trí và uniqueId đến API của bạn
+                        fetch('https://yourapiurl.com/api/location', { // Thay 'https://yourapiurl.com/api/location' bằng URL API của bạn
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                uniqueId: uniqueId,
+                                latitude: latitude,
+                                longitude: longitude
+                            })
                         })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        // Chuyển hướng đến Google Form với uniqueId
-                        const googleFormUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSc2fdJ8lxPoo4_pfMuTJXzlmdqrmm-0sZDAhMPCzdvZ80y7Lg/viewform?usp=pp_url&entry.2097054625=' + uniqueId;
-                        window.location.href = googleFormUrl;
-                    })
-                    .catch(error => {
-                        console.error('Lỗi:', error);
-                        alert('Có lỗi xảy ra. Vui lòng thử lại sau.');
-                    });
-                }, function(error) {
-                    alert('Không thể lấy vị trí của bạn. Vui lòng cho phép truy cập vị trí và thử lại.');
-                });
+                        .then(response => response.json())
+                        .then(data => {
+                            // Chuyển hướng đến Google Form với uniqueId
+                            const googleFormUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSc2fdJ8lxPoo4_pfMuTJXzlmdqrmm-0sZDAhMPCzdvZ80y7Lg/viewform?usp=pp_url&entry.2097054625=' + uniqueId;
+                            window.location.href = googleFormUrl;
+                        })
+                        .catch(error => {
+                            console.error('Lỗi Fetch:', error);
+                            alert('Đã xảy ra lỗi khi gửi dữ liệu của bạn. Vui lòng thử lại sau.');
+                        });
+                    },
+                    function(error) {
+                        console.error('Lỗi Geolocation:', error);
+                        switch(error.code) {
+                            case error.PERMISSION_DENIED:
+                                alert('Bạn đã từ chối yêu cầu định vị.');
+                                break;
+                            case error.POSITION_UNAVAILABLE:
+                                alert('Thông tin vị trí không khả dụng.');
+                                break;
+                            case error.TIMEOUT:
+                                alert('Yêu cầu lấy vị trí đã hết thời gian.');
+                                break;
+                            case error.UNKNOWN_ERROR:
+                                alert('Đã xảy ra lỗi không xác định.');
+                                break;
+                        }
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0
+                    }
+                );
             } else {
                 alert('Trình duyệt của bạn không hỗ trợ Geolocation.');
             }
@@ -49,3 +71,4 @@
     </script>
 </body>
 </html>
+
