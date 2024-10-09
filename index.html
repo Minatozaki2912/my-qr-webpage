@@ -1,76 +1,38 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR Location Redirect</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/geolib/3.3.3/geolib.min.js"></script>
     <script>
-        // Tọa độ của máy chủ (ví dụ)
-        const serverLatitude = 10.762622;    // Vĩ độ
-        const serverLongitude = 106.660172;  // Kinh độ
-
+        // Hàm lấy vị trí người dùng và chuyển hướng tới Google Form
         function getLocationAndRedirect() {
-            const messageElement = document.getElementById('message');
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    function(position) {
-                        const userLatitude = position.coords.latitude;
-                        const userLongitude = position.coords.longitude;
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    // Lấy kinh độ và vĩ độ của người dùng
+                    var latitude = position.coords.latitude;
+                    var longitude = position.coords.longitude;
 
-                        // Tính khoảng cách sử dụng Geolib
-                        const distance = geolib.getDistance(
-                            { latitude: serverLatitude, longitude: serverLongitude },
-                            { latitude: userLatitude, longitude: userLongitude }
-                        );
-
-                        console.log(`Khoảng cách: ${distance} mét`);
-
-                        if (distance <= 5) {
-                            // Nếu trong phạm vi 5 mét, chuyển hướng đến Google Form
-                            const googleFormURL = "https://docs.google.com/forms/d/e/1FAIpQLSc2fdJ8lxPoo4_pfMuTJXzlmdqrmm-0sZDAhMPCzdvZ80y7Lg/viewform?usp=pp_url&entry.2097054625=";
-                            const redirectURL = googleFormURL + "hr"; // 'hr' là giá trị bạn muốn gửi
-                            window.location.href = redirectURL;
-                        } else {
-                            // Nếu không trong phạm vi, hiển thị thông báo lỗi
-                            messageElement.innerHTML = "<span style='color: red; font-weight: bold;'>Bạn không ở trong phạm vi cho phép để truy cập biểu mẫu.</span>";
-                        }
-                    },
-                    function(error) {
-                        console.error('Lỗi Geolocation:', error);
-                        switch(error.code) {
-                            case error.PERMISSION_DENIED:
-                                alert('Bạn đã từ chối yêu cầu định vị.');
-                                break;
-                            case error.POSITION_UNAVAILABLE:
-                                alert('Thông tin vị trí không khả dụng.');
-                                break;
-                            case error.TIMEOUT:
-                                alert('Yêu cầu lấy vị trí đã hết thời gian.');
-                                break;
-                            case error.UNKNOWN_ERROR:
-                                alert('Đã xảy ra lỗi không xác định.');
-                                break;
-                        }
-                        messageElement.innerHTML = "<span style='color: red; font-weight: bold;'>Không thể lấy vị trí của bạn. Vui lòng thử lại sau.</span>";
-                    },
-                    {
-                        enableHighAccuracy: true,
-                        timeout: 10000,
-                        maximumAge: 0
-                    }
-                );
+                    // URL của Google Form (thay bằng link thực tế của form)
+                    var googleFormURL = "https://docs.google.com/forms/d/e/1FAIpQLScFdetvS7wS1LF8kQIJTUWCOnhNhr9sPmnY2GDD-nbm9UrihA/viewform";
+                    
+                    // Thêm tọa độ vào URL (có thể thêm vào tham số form entry)
+                    var redirectURL = googleFormURL + "&entry.797771191=" + latitude + "," + longitude;
+                    
+                    // Chuyển hướng người dùng đến Google Form với tọa độ
+                    window.location.href = redirectURL;
+                },
+                function(error) {
+                    // Xử lý lỗi nếu không lấy được vị trí
+                    alert("Không thể lấy vị trí của bạn. Vui lòng kiểm tra quyền truy cập vị trí và thử lại.");
+                });
             } else {
                 alert("Trình duyệt của bạn không hỗ trợ Geolocation.");
-                document.getElementById('message').innerHTML = "<span style='color: red; font-weight: bold;'>Trình duyệt của bạn không hỗ trợ Geolocation.</span>";
             }
         }
-
-        window.onload = getLocationAndRedirect;
     </script>
 </head>
-<body>
+<body onload="getLocationAndRedirect()">
     <h1>Đang lấy vị trí của bạn, vui lòng chờ...</h1>
-    <p id="message">Nếu bạn không được chuyển hướng, hãy kiểm tra kết nối và quyền truy cập vị trí.</p>
 </body>
 </html>
